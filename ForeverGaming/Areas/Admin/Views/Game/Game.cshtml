@@ -1,0 +1,115 @@
+﻿@model GameViewModel
+
+@{
+    // this view is used for add, edit, and delete.
+    // Which one is determined by the action method name.
+    var action = ViewContext.RouteData.Values["action"].ToString().Capitalize();
+
+    ViewData["Title"] = $" | {action} Game";
+}
+
+<h1>@action Game</h1>
+
+<form asp-action="@action" asp-area="Admin" method="post">
+
+    <input type="hidden" asp-for="Game.GameId" />
+    <input type="hidden" asp-for="Game.GameImage" />
+
+    <div class="form-group row">
+        <div class="col-sm-2"><label>Name:</label></div>
+
+        @* if adding, provide a text box. Otherwise, display name in a label. *@
+        @if (Operation.IsAdd(action))
+        {
+            <div class="col-sm-4">
+                <input type="text" asp-for="Game.Name" class="form-control" />
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.Name" class="text-danger"></span>
+            </div>
+        }
+        else
+        {
+            <div class="col-sm-4"><label>@Model.Game.Name</label></div>
+            <input type="hidden" asp-for="Game.Name" />
+        }
+    </div>
+
+    @* if not deleting, display text boxes and drop-downs for rest of fields*@
+    @if (!Operation.IsDelete(action))
+    {
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Genre:</label></div>
+            <div class="col-sm-4">
+                <select asp-for="Game.GenreId" class="form-control"
+                        asp-items='@new SelectList(Model.Genres, "GenreId", "Name", Model.Game.GenreId)'>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.GenreId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Type:</label></div>
+            <div class="col-sm-4">
+                <select asp-for="Game.TypeId" class="form-control"
+                        asp-items='@new SelectList(Model.Types, "TypeId", "Name", Model.Game.TypeId)'>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.TypeId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Format:</label></div>
+            <div class="col-sm-4">
+                <select asp-for="Game.FormatId" class="form-control"
+                        asp-items='@new SelectList(Model.Formats, "FormatId", "Name", Model.Game.FormatId)'>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.FormatId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Rating:</label></div>
+            <div class="col-sm-4">
+                <select asp-for="Game.RatingId" class="form-control"
+                        asp-items='@new SelectList(Model.Ratings, "RatingId", "Name", Model.Game.RatingId)'>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.RatingId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Publisher:</label></div>
+            <div class="col-sm-4">
+                <select asp-for="Game.PublisherId" class="form-control"
+                        asp-items='@new SelectList(Model.Publishers, "PublisherId", "Name", Model.Game.PublisherId)'>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.PublisherId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"><label>Game Image:</label></div>
+            <div class="col-sm-4">
+                <input type="text" asp-for="Game.GameImage" class="form-control" />
+            </div>
+            <div class="col-sm-6">
+                <span asp-validation-for="Game.GameImage" class="text-danger"></span>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-sm-4 offset-sm-2">
+            <button type="submit" class="btn btn-outline-custom">@action</button>
+
+            @* return user to main admin page after add, or to search page otherwise *@
+            <a asp-action="@(Operation.IsAdd(action) ? "Index" : "Search")"
+               class="btn btn-outline-custom">Cancel</a>
+        </div>
+    </div>
+</form>

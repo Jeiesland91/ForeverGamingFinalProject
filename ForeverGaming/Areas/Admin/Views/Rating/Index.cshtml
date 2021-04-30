@@ -1,0 +1,32 @@
+﻿@model IEnumerable<Rating>
+
+@{
+    ViewData["Title"] = " | Manage Ratings";
+}
+
+<h1 class="mb-2">Manage Ratings</h1>
+
+<h5 class="mt-2"><a asp-action="Add" asp-area="Admin" style="color: black">Add a Rating</a></h5>
+
+<table class="table table-bordered table-striped table-sm">
+    <thead class="thead-dark">
+        <tr><th style="color:aqua">RatingId</th><th style="color:aqua">Name</th><th style="color:aqua"></th></tr>
+    </thead>
+    <tbody>
+        @foreach (Rating rating in Model)
+        {
+            <tr>
+                <td>@rating.RatingId</td>
+                <td>@rating.Name</td>
+                <td>
+                    <a asp-action="ViewGames" asp-area="Admin" asp-route-id="@rating.Name"
+                       class="btn btn-outline-custom">View Games</a>
+                    <a asp-action="Edit" asp-area="Admin" asp-route-id="@rating.RatingId"
+                       class="btn btn-outline-custom">Edit</a>
+                    <a asp-action="Delete" asp-area="Admin" asp-route-id="@rating.RatingId"
+                       class="btn btn-outline-custom">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

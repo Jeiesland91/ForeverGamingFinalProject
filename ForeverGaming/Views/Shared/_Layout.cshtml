@@ -1,0 +1,101 @@
+﻿@{
+    // use current controller or area to determine if tab is active
+    var current = ViewContext.RouteData.Values["area"]?.ToString() ??
+        ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Forever Gaming @ViewBag.Title</title>
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+          crossorigin="anonymous">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/css/custom.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    @RenderSection("scripts", false)
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-md bg-dark">
+                <button class="navbar-toggler"type="button" data-toggle="collapse" data-target="#menu"
+                        aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon" style="color: yellow"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item @Nav.Active("Home", current)">
+                            <a class="nav-link" asp-action="Index" asp-controller="Home" asp-area="" style="color: yellow">
+                                <span class="fas fa-home" style="color: yellow"></span>&nbsp;Home
+                            </a>
+                        </li>
+                        <li class="nav-item @Nav.Active("Game", current)">
+                            <a class="nav-link" asp-action="List" asp-controller="Game" asp-area="" style="color: yellow">
+                                <span class="fas fa-gamepad" style="color: yellow"></span>&nbsp;Games
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Login buttons and links -->
+                        @using Microsoft.AspNetCore.Identity
+                        @using ForeverGaming.Models
+                        @inject SignInManager<User> signInManager
+
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            // signed-in user - Log Out button and username
+                            <li class="nav-item">
+                                <form method="post" asp-action="LogOut" asp-controller="Account"
+                                      asp-area="" style="color: yellow">
+                                    <input type="submit" value="Log Out"
+                                           class="btn" style="background-color: yellow"/>
+                                    <span class="" style="color: yellow">@User.Identity.Name</span>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+                            // anonymous user - Register link and Log In button
+                            <li class="nav-item @Nav.Active("Register", action)">
+                                <a asp-action="Register" asp-controller="Account"
+                                   asp-area="" class="nav-link" style="color: yellow">
+                                    <span class="fas fa-edit" style="color: yellow"></span>&nbsp;Register
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Login" asp-controller="Account"
+                                   asp-area="" class="btn btn-outline-light" style="color: yellow">Log In</a>
+                            </li>
+                        }
+
+                        <li class="nav-item @Nav.Active("Admin", current)">
+                            <a class="nav-link" style="color: yellow" asp-action="Index" asp-controller="Game" asp-area="Admin">
+                                <span class="fas fa-cog" style="color: yellow"></span>&nbsp;Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+        </nav>
+        <header class="jumbotron-fluid" >
+             <img src="~/images/logo_games.png" width="1110"; height="450"  />
+        </header>
+        <main>
+            @if (TempData.Keys.Contains("message"))
+            {
+                <h4 class="bg-info text-center text-white  p-2">@TempData["message"]</h4>
+            }
+            @RenderBody()
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+﻿@model Game
+
+<div class="text-center">
+    <h1>Forever Games - Today's Game Selection:</h1>
+    <ul class="list-group">
+        <li class="list-group-item bg-dark">
+            <h5>
+                <bold>
+                    <a asp-controller="Game"
+                       asp-action="Details"
+                       asp-route-id="@Model.GameId"
+                       asp-route-slug="@Model.Name.Slug()" style="color: aqua">
+                        @Model.Name
+                    </a>
+                </bold>
+            </h5>
+        </li>
+    </ul>
+</div>

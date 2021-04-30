@@ -1,0 +1,54 @@
+﻿@model SearchViewModel
+
+@{
+    ViewData["Title"] = " | Search Results";
+}
+
+<div class="row">
+    <div class="col">
+        <h6>@Model.Header</h6>
+    </div>
+    <div class="col">
+        <div class="float-right pr-2">
+            <a asp-action="Index" style="color: black; font-weight: bold">New Search</a>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th style="color: aqua">Game</th>
+            <th style="color: aqua">Genre</th>
+            <th style="color: aqua">Type</th>
+            <th style="color: aqua">Format</th>
+            <th style="color: aqua">Rating</th>
+            <th style="color: aqua">Publisher</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var game in Model.Games)
+    {
+        <tr>
+            <td>
+                <a asp-action="Details" asp-controller="Game"
+                   asp-area="" asp-route-id="@game.GameId"
+                   asp-route-slug="@game.Name.Slug()" style="color: black">@game.Name</a>
+            </td>
+            <td>@game.Genre.Name</td>
+            <td>@game.Type.Name</td>
+            <td>@game.Format.Name</td>
+            <td>@game.Rating.Name</td>
+            <td>@game.Publisher.Name</td>
+            <td>
+                <div class="float-right">
+                    <a asp-action="Edit" asp-route-id="@game.GameId"
+                       class="btn" style="background-color: aqua; border-block-color: aqua; font-weight: bold">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@game.GameId"
+                       class="btn" style="background-color: aqua; border-block-color: aqua; font-weight: bold">Delete</a>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

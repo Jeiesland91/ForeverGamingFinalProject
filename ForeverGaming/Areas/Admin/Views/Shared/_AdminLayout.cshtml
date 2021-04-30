@@ -1,0 +1,61 @@
+﻿@{
+    // nested layout view
+    Layout = "_Layout";
+
+    // use current controller determine if tab is active
+    var current = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+@* since many admin views deal with user entry and data validation,
+    jQuery validation libraries are included here rather than in individual views. *@
+@section scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<ul class="nav nav-tabs mt-2 bg-dark">
+    <li class="nav-item bg-dark border-dark">
+        <a asp-action="Index" asp-controller="Game"
+           class="nav-link @Nav.Active("Game", current)" style="color: aqua; font-weight: bold">
+            Manage Games
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="Type"
+           class="nav-link @Nav.Active("Type", current)" style="color: aqua; font-weight: bold">
+            Manage Types
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="Genre"
+           class="nav-link @Nav.Active("Genre", current)" style="color: aqua; font-weight: bold">
+            Manage Genres
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="Format"
+           class="nav-link @Nav.Active("Format", current)" style="color: aqua; font-weight: bold">
+            Manage Formats
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="Rating"
+           class="nav-link @Nav.Active("Rating", current)" style="color: aqua; font-weight: bold">
+            Manage Ratings
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="Publisher"
+           class="nav-link @Nav.Active("Publisher", current)" style="color: aqua; font-weight: bold">
+            Manage Publishers
+        </a>
+    </li>
+    <li class="nav-item bg-dark">
+        <a asp-action="Index" asp-controller="User"
+           class="nav-link @Nav.Active("User", current)" style="color: aqua; font-weight: bold">
+            Manage Users
+        </a>
+    </li>
+</ul>
+
+@RenderBody()

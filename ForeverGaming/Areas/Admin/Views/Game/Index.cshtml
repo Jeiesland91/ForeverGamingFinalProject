@@ -1,0 +1,50 @@
+﻿@model SearchViewModel
+
+@{
+    ViewData["Title"] = " | Manage Games";
+}
+
+<h1 class="mb-2">Manage Games</h1>
+<ul class="list-group">
+    <li class="list-group-item">
+        <h5 class="mt-1"><a asp-action="Add" style="color: black;">Add a game</a></h5>
+    </li>
+    <li class="list-group-item bg-dark">
+        <form asp-action="Search" method="post" class="form-inline">
+            <h5 class="mt-1 mr-5" style="color: aqua">Find a game</h5>
+            <label style="color: aqua">
+                Search Term:
+            </label>
+            <input type="text" asp-for="SearchTerm" class="form-control ml-2 mr-2" style="color: black">
+            <label style="color: aqua">
+                Search By:
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="game" checked>Name
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="genre">Genre
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="type">Type
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="format">Format
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="rating">Rating
+            </label>
+            <label class="radio-inline" style="color: aqua">
+                <input type="radio" class="form-control ml-2 mr-2"
+                       asp-for="Type" value="publisher">Publisher
+            </label>
+            <button type="submit" class="btn ml-2 mr-2 btn-outline-custom">Find</button>
+            <span asp-validation-for="SearchTerm" class="text-danger"></span>
+        </form>
+    </li>
+</ul>
