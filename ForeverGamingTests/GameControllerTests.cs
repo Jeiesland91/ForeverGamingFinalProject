@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using ForeverGaming.Controllers;
 using ForeverGaming.Models;
 using Microsoft.AspNetCore.Http;
@@ -48,6 +49,14 @@ namespace ForeverGamingTests
 
         private GameController TestSetUp()
         {
+           // Mock httpContext = new Mock<HttpContextBase>();
+           // Mock session = new Mock<HttpSessionStateBase>();
+
+           //httpContext.Setup(x => x.Session).Returns(session.Object);
+
+           // ControllerContext ctx = new ControllerContext();
+           // ctx.HttpContext = httpContext.Object;
+
             var options = new DbContextOptionsBuilder<GameContext>()
                 .UseInMemoryDatabase(databaseName: "ForeverGaming")
                 .Options;
@@ -55,7 +64,7 @@ namespace ForeverGamingTests
             var rnd = new Random();
             _id = rnd.Next(10000, 11000);
             var context = new GameContext(options);
-      
+
             context.Games.Add(new Game()
             {
                 GameId = _id,
@@ -67,88 +76,101 @@ namespace ForeverGamingTests
                 PublisherId = "Blizz",
                 GameImage = "TheWitcher.png",
             });
-           
+
             context.SaveChanges();
+            var mockSession = MockHttpSession();
+            
 
-            var httpcontext = new Mock<HttpContext>();
-            var session = new TestSession();
 
-            httpcontext.Setup(Session => session);
             _controller = new GameController(context);
 
             return _controller;
         }
-    }
 
-    public class TestSession : ISession
-    {
-
-        public TestSession()
+        private static ISession MockHttpSession()
         {
-            Values = new Dictionary<string, byte[]>();
-        }
-
-        public string Id
-        {
-            get
-            {
-                return "session_id";
-            }
-        }
-
-        public bool IsAvailable
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public IEnumerable<string> Keys
-        {
-            get { return Values.Keys; }
-        }
-
-        public Dictionary<string, byte[]> Values { get; set; }
-
-        public void Clear()
-        {
-            Values.Clear();
-        }
-
-        public Task CommitAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(string key)
-        {
-            Values.Remove(key);
-        }
-
-        public void Set(string key, byte[] value)
-        {
-            if (Values.ContainsKey(key))
-            {
-                Remove(key);
-            }
-            Values.Add(key, value);
-        }
-
-        public bool TryGetValue(string key, out byte[] value)
-        {
-            if (Values.ContainsKey(key))
-            {
-                value = Values[key];
-                return true;
-            }
-            value = new byte[0];
-            return false;
+            MockHttpSession httpSession = new MockHttpSession();
+            httpSession.SetObject("UserEmail", "unittest@mycompany.com");
+            return httpSession;
         }
     }
+
+    //public class TestSession : ISession
+    //{
+
+    //    public TestSession()
+    //    {
+    //        Values = new Dictionary<string, byte[]>();
+    //    }
+
+    //    public string Id
+    //    {
+    //        get
+    //        {
+    //            return "session_id";
+    //        }
+    //    }
+
+    //    public bool IsAvailable
+    //    {
+    //        get
+    //        {
+    //            return true;
+    //        }
+    //    }
+
+    //    public IEnumerable<string> Keys
+    //    {
+    //        get { return Values.Keys; }
+    //    }
+
+    //    public Dictionary<string, byte[]> Values { get; set; }
+
+    //    public void Clear()
+    //    {
+    //        Values.Clear();
+    //    }
+
+    //    public Task CommitAsync(CancellationToken cancellationToken = new CancellationToken())
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void Remove(string key)
+    //    {
+    //        Values.Remove(key);
+    //    }
+
+    //    public void Set(string key, byte[] value)
+    //    {
+    //        if (Values.ContainsKey(key))
+    //        {
+    //            Remove(key);
+    //        }
+    //        Values.Add(key, value);
+    //    }
+
+    //    public bool TryGetValue(string key, out byte[] value)
+    //    {
+    //        if (Values.ContainsKey(key))
+    //        {
+    //            value = Values[key];
+    //            return true;
+    //        }
+    //        value = new byte[0];
+    //        return false;
+    //    }
+
+    //    private static ISession MockHttpSession()
+    //    {
+    //        MockHttpSession httpContext = new MockHttpSession();
+    //        httpContext.SetObject("UserEmail", "unittest@mycompany.com");
+    //        return httpContext;
+    //    }
 }
+

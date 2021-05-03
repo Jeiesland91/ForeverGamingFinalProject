@@ -1,10 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForeverGaming.Controllers;
 using ForeverGaming.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace ForeverGamingTests
 {
@@ -13,27 +20,67 @@ namespace ForeverGamingTests
 
         public Mock<FakeUserManager> userManagerMock;
         public Mock<FakeSignInManager> signInManagerMock;
-        public AccountController controller;
         public RegisterViewModel regModel;
         public LoginViewModel logModel;
-        public User user;
+        //public User user;
+
+        private AccountController controller { get; }
 
         public AccountControllerTests()
         {
             var list = new List<string> {"admin"};
-            user = new User {Firstname = "Bob", Lastname = "Foster", RoleNames = list};
+            var users = new List<User>
+            {
+                new User
+                {
+                    UserName = "Test",
+                    Id = Guid.NewGuid().ToString(),
+                    Email = "test@test.it"
+                }
+
+            }.AsQueryable();
+
+            //user = new User {Firstname = "Bob", Lastname = "Foster", RoleNames = list};
 
             userManagerMock = new Mock<FakeUserManager>();
             signInManagerMock = new Mock<FakeSignInManager>();
+            userManagerMock.Setup(x => x.Users)
+                .Returns(users);
+
+            userManagerMock.Setup(x => x.DeleteAsync((It.IsAny<User>())))
+                .ReturnsAsync(IdentityResult.Success);
+            userManagerMock.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            userManagerMock.Setup(x => x.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            
+            //var mapper = (IMapper)fixture.Server.Host.Services.GetService(typeof(IMapper));
+            //var errorHandler = (IErrorHandler)fixture.Server.Host.Services.GetService(typeof(IErrorHandler));
+            //var passwordhasher = (IPasswordHasher<AppUser>)fixture.Server.Host.Services.GetService(typeof(IPasswordHasher<AppUser>));
+
+            var uservalidator = new Mock<IUserValidator<User>>();
+            uservalidator.Setup(x => x.ValidateAsync(It.IsAny<UserManager<User>>(), It.IsAny<User>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var passwordvalidator = new Mock<IPasswordValidator<User>>();
+            passwordvalidator.Setup(x => x.ValidateAsync(It.IsAny<UserManager<User>>(), It.IsAny<User>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            signInManagerMock.Setup(
+                    x => x.PasswordSignInAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .ReturnsAsync(SignInResult.Success);
+          
             controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
             regModel = new RegisterViewModel
             {
-                Username = "Bfoster", Firstname = "Bob", Lastname = "Foster", Email = "BFoster99@gmail.com", Password = "Sesame99"
+                Username = "admin", Firstname = "Bob", Lastname = "Foster", Email = "BFoster99@gmail.com", Password = "Sesame"
             };
             logModel = new LoginViewModel
             {
-                Username = "Bfoster", Password = "Sesame99", RememberMe = false, ReturnUrl = string.Empty
+                Username = "admin", Password = "Sesame", RememberMe = true, ReturnUrl = string.Empty
             };
+      
 
         }
 
@@ -43,53 +90,48 @@ namespace ForeverGamingTests
             // arrange
 
             // act
-            var result = controller.Register();
+            var resultTask = controller.Register();
+            var result = resultTask;
 
             // assert
             Assert.IsType<ViewResult>(result);
         }
 
         [Fact]
-        public void RegisterActionMethod_InvalidModelErrorReturnsARegisterViewResult()
+        public async void RegisterActionMethod_InvalidModelErrorReturnsARegisterViewResult()
         {
             // arrange
             controller.ModelState.AddModelError("Password", "Required");
-
-            var resultTask = controller.Register(regModel);
-            resultTask.Wait();
-            var result = resultTask.Result;
+            var resultTask = await controller.Register(regModel);
+            var result = resultTask;
 
             // assert
             Assert.IsType<ViewResult>(result);
         }
 
         [Fact]
-        public void RegisterActionMethod_ValidModelReturnsARegisterViewResult()
+        public async void RegisterActionMethod_ValidModelReturnsARegisterViewResult()
         {
             // arrange
 
             // act
-            var resultTask = controller.Register(regModel);
-            resultTask.Wait();
-            var result = resultTask.Result;
+            var resultTask = await controller.Register(regModel);
+            var result = resultTask;
 
             // assert
-            Assert.Null(result);
+            Assert.IsType<RedirectToActionResult>(result);
         }
 
 
         [Fact]
-        public void LogoutActionMethod_ReturnsARedirectToActionAsync()
+        public async void LogoutActionMethod_ReturnsARedirectToActionAsync()
         {
             // act
-            var resultTask = controller.LogOut();
-            resultTask.Wait();
-            var result = resultTask.Result;
-            //var model = (List<Client>)((ViewResult)result).Model;
-
+            var resultTask = await controller.LogOut();
+            var result = resultTask;
+           
             //Assert
             Assert.IsType<RedirectToActionResult>(result);
-            //Assert.AreEqual(2, model.Count());
         }
         
         [Fact]
@@ -105,15 +147,29 @@ namespace ForeverGamingTests
         }
 
         [Fact]
-        public void LoginActionMethod_ReturnsAIActionResult_Model()
+        public async void LoginActionMethod_ReturnsAIActionResult_Model()
         {
             // arrange
 
             // act
-            var result = controller.LogIn(logModel);
+            var resultTask = await controller.LogIn(logModel);
+            var result = resultTask;
 
             // assert
-            Assert.IsType<Task<IActionResult>>(result);
+            Assert.IsType<ViewResult>(result);
+        }
+
+        [Fact]
+        public async void LoginActionMethod_InvalidModelReturnsALoginViewModel()
+        {
+            // arrange
+            controller.ModelState.AddModelError("Password", "Required");
+            // act
+            var resultTask = await controller.LogIn(logModel);
+            var result = resultTask;
+
+            // assert
+            Assert.IsType<ViewResult>(result);
         }
 
         [Fact]
@@ -127,5 +183,6 @@ namespace ForeverGamingTests
             // assert
             Assert.IsType<ViewResult>(result);
         }
+        
     }
 }
